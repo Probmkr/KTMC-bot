@@ -5,11 +5,16 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node -r tsconfig-paths/register src/index.ts",
+    "dev:keychain": "node scripts/with-keychain.js ts-node -r tsconfig-paths/register src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "deploy": "ts-node -r tsconfig-paths/register src/deploy-commands.ts",
+    "deploy:keychain": "node scripts/with-keychain.js ts-node -r tsconfig-paths/register src/deploy-commands.ts",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:keychain": "node scripts/with-keychain.js drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
+    "db:studio:keychain": "node scripts/with-keychain.js drizzle-kit studio",
+    "setup:keychain": "node scripts/setup-keychain.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -27,6 +32,7 @@
     "discord.js": "^14.26.0",
     "dotenv": "^17.4.0",
     "drizzle-orm": "^0.45.2",
+    "keytar": "^7.9.0",
     "pg": "^8.20.0"
   },
   "devDependencies": {
