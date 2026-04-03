@@ -169,3 +169,39 @@ fly deploy
 ```bash
 fly logs
 ```
+
+---
+
+## コミットメッセージ
+
+基本形式：
+
+```
+[prefix]: [title/content]
+<details>
+```
+
+大きな変更が複数ある場合は、複数のエントリを並べる：
+
+```
+[prefix]: [title/content]
+<details>
+[prefix]: [title/content]
+<details>
+...
+```
+
+- `[]` は必須の変数
+- `<>` は任意の変数
+
+### prefix 一覧
+
+| prefix | 用途 |
+|--------|------|
+| `feat` | 新機能の追加 |
+| `fix` | バグ修正 |
+| `chore` | 雑務・設定変更など |
+| `doc` | ドキュメント関連 |
+| `plan` | 計画・設計メモ |
+| `pkg` | パッケージ・依存関係の変更 |
+| `hotfix` | 緊急のバグ修正 |
