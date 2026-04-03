@@ -1,0 +1,19 @@
+{
+  "name": "ktmc-bot",
+  "version": "1.0.0",
+  "description": "コミュニティ向け多機能 Discord Bot。入退室ログ、モデレーション、その他の機能を提供します。",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Probmkr/KTMC-bot.git"
+  },
+  "author": "Probmkr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Probmkr/KTMC-bot/issues"
+  },
+  "homepage": "https://github.com/Probmkr/KTMC-bot#readme"
+}
