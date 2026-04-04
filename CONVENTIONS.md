@@ -35,14 +35,17 @@ src/
 ├── domain/                     # ドメインオブジェクト
 │   └── {feature}/
 │       ├── {name}.ts
-│       └── {name}.repository.ts   # Repositoryインターフェース
-├── infrastructure/             # Repository実装・外部接続
+│       ├── {name}.repository.ts   # Repository インターフェース
+│       └── {name}.port.ts         # 外部サービス（Discord 等）のポートインターフェース
+├── infrastructure/             # Repository・Adapter 実装・外部接続
 │   ├── db/
 │   │   ├── index.ts            # Drizzle接続
 │   │   └── schema/
 │   │       └── {feature}.ts
-│   └── repository/
-│       └── {name}.repository.ts
+│   ├── repository/
+│   │   └── {name}.repository.ts
+│   └── discord/
+│       └── {name}.adapter.ts   # GuildPort 等の discord.js 実装
 └── lib/                        # 汎用ユーティリティ
     └── reply.ts
 ```
@@ -55,18 +58,20 @@ src/
 
 ```
 Command → Service → Repository（Interface）← Repository（Impl） → DB
+               ↓
+          GuildPort（Interface）← GuildAdapter（Impl） → Discord API
 ```
 
 | 層 | 責務 | 禁止事項 |
 |---|---|---|
-| Command | Discord の入出力のみ | ビジネスロジックを書かない |
-| Service | ビジネスロジックのみ | `interaction` に依存しない |
-| Domain | ドメインオブジェクト・Repositoryインターフェース | 外部ライブラリに依存しない |
-| Infrastructure | DBアクセスの実装 | ビジネスロジックを書かない |
+| Command | Discord の入出力のみ（interaction の読み取りと reply） | ビジネスロジックを書かない |
+| Service | ビジネスロジックのみ | `interaction` に依存しない、discord.js の型に直接依存しない |
+| Domain | ドメインオブジェクト・Repository/Port インターフェース | 外部ライブラリに依存しない |
+| Infrastructure | DB アクセス・Discord API 操作の実装 | ビジネスロジックを書かない |
 
 ### 依存の方向
 
-Service は Repository の**インターフェース**にのみ依存し、実装（Drizzle）には依存しない。
+Service は Repository・GuildPort の**インターフェース**にのみ依存し、実装（Drizzle・discord.js）には依存しない。
 
 ```ts
 // ✅ 正しい — インターフェースに依存
@@ -163,7 +168,8 @@ const sub   = interaction.options.getSubcommand();
 ## Service層
 
 - `interaction` をはじめ discord.js の型に依存しない
-- 入力は Plain Object の DTO として受け取る
+- Discord API 操作が必要な場合は `GuildPort` 等のインターフェースを通じて行う
+- 入力は Plain Object の DTO として受け取る（ポートはコンストラクタ注入）
 - ビジネスルール違反は `DomainError` をスローする
 
 ```ts
@@ -289,6 +295,67 @@ export class DrizzleBanRepository implements BanRepository {
 
 ---
 
+## Discord ポート
+
+Discord API への操作（BAN・ロール変更・タイムアウト等）も Repository と同様に、インターフェースを domain 層に定義し、実装を infrastructure 層に置く。
+
+### インターフェース（domain 層）
+
+```ts
+// domain/moderation/guild.port.ts
+// discord.js を一切インポートしない
+export interface GuildPort {
+  banUser(userId: string, reason: string): Promise<void>;
+  setMemberRoles(userId: string, rolesToAdd: string[], rolesToRemove: string[]): Promise<void>;
+  timeoutMember(userId: string, durationMs: number, reason: string): Promise<void>;
+}
+```
+
+### 実装（infrastructure 層）
+
+```ts
+// infrastructure/discord/guild.adapter.ts
+import { Guild } from 'discord.js';
+import { GuildPort } from '../../domain/moderation/guild.port';
+
+export class DiscordGuildAdapter implements GuildPort {
+  constructor(private readonly guild: Guild) {}
+
+  async banUser(userId: string, reason: string): Promise<void> {
+    await this.guild.bans.create(userId, { reason });
+  }
+
+  async setMemberRoles(userId: string, rolesToAdd: string[], rolesToRemove: string[]): Promise<void> {
+    const member = await this.guild.members.fetch(userId).catch(() => null);
+    if (!member) return;
+    if (rolesToAdd.length)    await member.roles.add(rolesToAdd);
+    if (rolesToRemove.length) await member.roles.remove(rolesToRemove);
+  }
+
+  async timeoutMember(userId: string, durationMs: number, reason: string): Promise<void> {
+    const member = await this.guild.members.fetch(userId).catch(() => null);
+    await member?.timeout(durationMs, reason);
+  }
+}
+```
+
+### Service での利用
+
+```ts
+// Service はインターフェースにのみ依存
+export class ModerationService {
+  constructor(
+    private readonly repo:      UserWarningRepository,
+    private readonly guildPort: GuildPort,
+  ) {}
+}
+
+// Command でアダプターを生成して注入
+const service = new ModerationService(repo, new DiscordGuildAdapter(interaction.guild!));
+```
+
+---
+
 ## エラーハンドリング
 
 ### エラークラス（errors.ts）
@@ -386,8 +453,8 @@ export const bans = pgTable('bans', {
 
 ## テスト（推奨）
 
-- Service層は discord.js に依存しないため、単体テストを書きやすい
-- Repository はインメモリ実装に差し替えてテストする
+- Service 層は discord.js に直接依存しないため、単体テストを書きやすい
+- Repository・GuildPort はどちらもインメモリ実装に差し替えてテストする
 - テストフレームワークは **Vitest** を推奨
 
 ```ts
