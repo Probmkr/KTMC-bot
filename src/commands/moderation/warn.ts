@@ -1,12 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types';
-import { ModerationService } from '../../application/moderation/moderation.service';
-import { DrizzleUserWarningRepository } from '../../infrastructure/repository/user-warning.repository';
 import { DiscordGuildAdapter } from '../../infrastructure/discord/guild.adapter';
-import { DomainError } from '../../errors';
-import { replyError } from '../../lib/reply';
-
-const moderationService = new ModerationService(new DrizzleUserWarningRepository());
+import { moderationService } from '../../services';
 
 async function handleSetup(interaction: ChatInputCommandInteraction): Promise<void> {
   const noticeRole  = interaction.options.getRole('notice-role', true);
@@ -103,18 +98,10 @@ const command: Command = {
 
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
-    try {
-      if (sub === 'setup')  return await handleSetup(interaction);
-      if (sub === 'add')    return await handleAdd(interaction);
-      if (sub === 'remove') return await handleRemove(interaction);
-      if (sub === 'list')   return await handleList(interaction);
-    } catch (error) {
-      if (error instanceof DomainError) {
-        await replyError(interaction, error.message);
-      } else {
-        throw error;
-      }
-    }
+    if (sub === 'setup')  return await handleSetup(interaction);
+    if (sub === 'add')    return await handleAdd(interaction);
+    if (sub === 'remove') return await handleRemove(interaction);
+    if (sub === 'list')   return await handleList(interaction);
   },
 };
 

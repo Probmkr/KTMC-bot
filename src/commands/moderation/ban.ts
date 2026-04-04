@@ -1,10 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { Command } from '../../types';
-import { ModerationService } from '../../application/moderation/moderation.service';
-import { DrizzleUserWarningRepository } from '../../infrastructure/repository/user-warning.repository';
 import { DiscordGuildAdapter } from '../../infrastructure/discord/guild.adapter';
-
-const moderationService = new ModerationService(new DrizzleUserWarningRepository());
+import { moderationService } from '../../services';
 
 const command: Command = {
   data: new SlashCommandBuilder()

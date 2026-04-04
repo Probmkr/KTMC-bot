@@ -54,19 +54,19 @@ export class ModerationService {
 
     const warning = UserWarning.create({ userId: dto.userId, guildId: dto.guildId, count: newCount, updatedAt: new Date() });
 
+    await this.repo.save(warning);
+    await this.repo.appendLog({ userId: dto.userId, guildId: dto.guildId, action: 'add', reason: dto.reason, moderatorId: dto.moderatorId });
+
     if (warning.shouldBeBanned()) {
       await this.executeBan({ userId: dto.userId, guildId: dto.guildId, moderatorId: dto.moderatorId, reason: dto.reason, guild: dto.guild });
       return { banned: true };
     }
 
-    await this.repo.save(warning);
     await this.applyWarningRoles(dto.guild, dto.userId, newCount, setting.noticeRoleId, setting.warningRoleId);
 
     if (dto.timeoutMs) {
       await dto.guild.timeoutMember(dto.userId, dto.timeoutMs, dto.reason);
     }
-
-    await this.repo.appendLog({ userId: dto.userId, guildId: dto.guildId, action: 'add', reason: dto.reason, moderatorId: dto.moderatorId });
 
     return { banned: false };
   }
@@ -125,7 +125,7 @@ export class ModerationService {
     const rolesToAdd:    string[] = [];
     const rolesToRemove: string[] = [];
 
-    if (count >= 2) {
+    if (count >= UserWarning.WARNING_THRESHOLD) {
       rolesToAdd.push(warningRoleId);
       rolesToRemove.push(noticeRoleId);
     } else if (count === 1) {

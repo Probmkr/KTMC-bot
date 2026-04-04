@@ -4,17 +4,14 @@ import { Command } from './types';
 import { DomainError } from './errors';
 import { replyError } from './lib/reply';
 import { loadCommands } from './commands';
-import { ModerationService } from './application/moderation/moderation.service';
-import { DrizzleUserWarningRepository } from './infrastructure/repository/user-warning.repository';
 import { DiscordGuildAdapter } from './infrastructure/discord/guild.adapter';
+import { moderationService } from './services';
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 }) as Client & { commands: Collection<string, Command> };
 
 client.commands = new Collection();
-
-const moderationService = new ModerationService(new DrizzleUserWarningRepository());
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 

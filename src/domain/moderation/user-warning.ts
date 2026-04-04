@@ -8,7 +8,8 @@ export interface UserWarningProps {
 }
 
 export class UserWarning {
-  static readonly BAN_THRESHOLD = 3;
+  static readonly BAN_THRESHOLD     = 3;
+  static readonly WARNING_THRESHOLD = 2;
   static readonly DOWNGRADE_DAYS = 365;
 
   private constructor(private readonly props: UserWarningProps) {}
