@@ -4,6 +4,9 @@ import { Command } from './types';
 import { DomainError } from './errors';
 import { replyError } from './lib/reply';
 import { loadCommands } from './commands';
+import { ModerationService } from './application/moderation/moderation.service';
+import { DrizzleUserWarningRepository } from './infrastructure/repository/user-warning.repository';
+import { DiscordGuildAdapter } from './infrastructure/discord/guild.adapter';
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
@@ -11,8 +14,22 @@ const client = new Client({
 
 client.commands = new Collection();
 
-client.once(Events.ClientReady, c => {
+const moderationService = new ModerationService(new DrizzleUserWarningRepository());
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+client.once(Events.ClientReady, async c => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
+
+  for (const guild of c.guilds.cache.values()) {
+    await moderationService.runDegradationCheck(guild.id, guild.client.user!.id, new DiscordGuildAdapter(guild)).catch(console.error);
+  }
+
+  setInterval(async () => {
+    for (const guild of client.guilds.cache.values()) {
+      await moderationService.runDegradationCheck(guild.id, guild.client.user!.id, new DiscordGuildAdapter(guild)).catch(console.error);
+    }
+  }, ONE_DAY_MS);
 });
 
 client.on(Events.InteractionCreate, async interaction => {
