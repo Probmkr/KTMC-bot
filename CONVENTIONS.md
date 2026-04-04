@@ -43,7 +43,7 @@ src/
 │   │   └── schema/
 │   │       └── {feature}.ts
 │   ├── repository/
-│   │   └── {name}.repository.ts
+│   │   └── {name}.repository.impl.ts
 │   └── discord/
 │       └── {name}.adapter.ts   # GuildPort 等の discord.js 実装
 └── lib/                        # 汎用ユーティリティ
@@ -259,7 +259,7 @@ export interface BanRepository {
 - インターフェースのメソッド以外を外部に公開しない
 
 ```ts
-// infrastructure/repository/ban.repository.ts
+// infrastructure/repository/ban.repository.impl.ts
 import { eq, and } from 'drizzle-orm';
 import { db } from '../db';
 import { bans } from '../db/schema/moderation';
