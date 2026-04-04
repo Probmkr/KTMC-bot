@@ -1,5 +1,5 @@
-import { ModerationService } from './application/moderation/moderation.service';
-import { DrizzleUserWarningRepository } from './infrastructure/repository/user-warning.repository';
+import { ModerationService } from "./application/moderation/moderation.service";
+import { DrizzleUserWarningRepository } from "./infrastructure/repository/user-warning.repository.impl";
 
 const userWarningRepository = new DrizzleUserWarningRepository();
 
