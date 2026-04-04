@@ -41,6 +41,6 @@
     "drizzle-kit": "^0.31.10",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2",
-    "vitest": "^2.1.9"
+    "vitest": "^4.1.2"
   }
 }
