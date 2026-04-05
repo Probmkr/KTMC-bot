@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { REST, Routes } from 'discord.js';
 import { loadCommands } from './commands';
+import { logger } from './lib/logger';
 
 const token   = process.env.BOT_TOKEN!;
 const appId   = process.env.APP_ID!;
@@ -14,9 +15,9 @@ const rest = new REST().setToken(token);
 
   if (guildId) {
     await rest.put(Routes.applicationGuildCommands(appId, guildId), { body });
-    console.log(`ギルドコマンドを登録しました (guild: ${guildId})`);
+    logger.info(`ギルドコマンドを登録しました (guild: ${guildId})`);
   } else {
     await rest.put(Routes.applicationCommands(appId), { body });
-    console.log('グローバルコマンドを登録しました');
+    logger.info('グローバルコマンドを登録しました');
   }
 })();

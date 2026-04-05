@@ -1,5 +1,6 @@
 import { Guild } from 'discord.js';
 import { GuildPort } from '../../domain/moderation/guild.port';
+import { logger } from '../../lib/logger';
 
 export class DiscordGuildAdapter implements GuildPort {
   constructor(private readonly guild: Guild) {}
@@ -9,8 +10,8 @@ export class DiscordGuildAdapter implements GuildPort {
   }
 
   async setMemberRoles(userId: string, rolesToAdd: string[], rolesToRemove: string[]): Promise<void> {
-    const member = await this.guild.members.fetch(userId).catch((e) => { console.error('members.fetch failed:', e); return null; });
-    console.log('setMemberRoles', { userId, member: !!member, rolesToAdd, rolesToRemove });
+    const member = await this.guild.members.fetch(userId).catch((e) => { logger.error({ err: e }, 'members.fetch failed'); return null; });
+    logger.debug({ userId, member: !!member, rolesToAdd, rolesToRemove }, 'setMemberRoles');
     if (!member) return;
     const currentIds = member.roles.cache.map(r => r.id);
     const finalIds   = [...currentIds.filter(id => !rolesToRemove.includes(id)), ...rolesToAdd];
