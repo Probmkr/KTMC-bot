@@ -103,7 +103,7 @@ export class ModerationService {
   }
 
   async runDegradationCheck(guildId: string, botId: string, guild: GuildPort): Promise<void> {
-    const setting = await this.repo.findGuildSetting(guildId);
+    const setting = await this.repo.findGuildSetting(guildId).catch(() => null);
     if (!setting) return;
 
     const allWarnings = await this.repo.findAllByGuild(guildId);
