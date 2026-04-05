@@ -20,12 +20,12 @@ client.once(Events.ClientReady, async c => {
   logger.info(`Ready! Logged in as ${c.user.tag}`);
 
   for (const guild of c.guilds.cache.values()) {
-    await moderationService.runDegradationCheck(guild.id, guild.client.user!.id, new DiscordGuildAdapter(guild)).catch((e) => logger.error(e, 'runDegradationCheck failed'));
+    await moderationService.runDegradationCheck(guild.id, guild.client.user!.id, new DiscordGuildAdapter(guild)).catch((e) => logger.error({ err: e }, 'runDegradationCheck failed'));
   }
 
   setInterval(async () => {
     for (const guild of client.guilds.cache.values()) {
-      await moderationService.runDegradationCheck(guild.id, guild.client.user!.id, new DiscordGuildAdapter(guild)).catch((e) => logger.error(e, 'runDegradationCheck failed'));
+      await moderationService.runDegradationCheck(guild.id, guild.client.user!.id, new DiscordGuildAdapter(guild)).catch((e) => logger.error({ err: e }, 'runDegradationCheck failed'));
     }
   }, ONE_DAY_MS);
 });
@@ -42,7 +42,7 @@ client.on(Events.InteractionCreate, async interaction => {
     if (error instanceof DomainError) {
       await replyError(interaction, error.message);
     } else {
-      logger.error(error, 'Unhandled interaction error');
+      logger.error({ err: error }, 'Unhandled interaction error');
       await replyError(interaction, '予期せぬエラーが発生しました');
     }
   }
