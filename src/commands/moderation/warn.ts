@@ -36,10 +36,10 @@ async function handleAdd(interaction: ChatInputCommandInteraction): Promise<void
   });
 
   if (result.banned) {
-    await interaction.reply({ content: `${user} を BAN しました（警告3回）\n理由: ${reason}`, flags: 'Ephemeral' as const });
+    await interaction.reply({ content: `${user} を BAN しました（警告${result.count}回）\n理由: ${reason}`, flags: 'Ephemeral' as const });
   } else {
     const timeoutText = timeout ? `\nタイムアウト: ${timeout}分` : '';
-    await interaction.reply({ content: `${user} に警告を追加しました\n理由: ${reason}${timeoutText}`, flags: 'Ephemeral' as const });
+    await interaction.reply({ content: `${user} に警告を追加しました（${result.count}回目）\n理由: ${reason}${timeoutText}`, flags: 'Ephemeral' as const });
   }
 }
 

@@ -9,10 +9,12 @@ export class DiscordGuildAdapter implements GuildPort {
   }
 
   async setMemberRoles(userId: string, rolesToAdd: string[], rolesToRemove: string[]): Promise<void> {
-    const member = await this.guild.members.fetch(userId).catch(() => null);
+    const member = await this.guild.members.fetch(userId).catch((e) => { console.error('members.fetch failed:', e); return null; });
+    console.log('setMemberRoles', { userId, member: !!member, rolesToAdd, rolesToRemove });
     if (!member) return;
-    if (rolesToAdd.length)    await member.roles.add(rolesToAdd);
-    if (rolesToRemove.length) await member.roles.remove(rolesToRemove);
+    const currentIds = member.roles.cache.map(r => r.id);
+    const finalIds   = [...currentIds.filter(id => !rolesToRemove.includes(id)), ...rolesToAdd];
+    await member.roles.set(finalIds);
   }
 
   async timeoutMember(userId: string, durationMs: number, reason: string): Promise<void> {

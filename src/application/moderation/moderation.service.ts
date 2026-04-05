@@ -45,7 +45,7 @@ export class ModerationService {
     await this.repo.saveGuildSetting(setting);
   }
 
-  async addWarning(dto: AddWarningDto): Promise<{ banned: boolean }> {
+  async addWarning(dto: AddWarningDto): Promise<{ banned: boolean; count: number }> {
     const setting = await this.repo.findGuildSetting(dto.guildId);
     if (!setting) throw new DomainError('モデレーション設定が未登録です。先に `/warn setup` を実行してください');
 
@@ -59,7 +59,7 @@ export class ModerationService {
 
     if (warning.shouldBeBanned()) {
       await this.executeBan({ userId: dto.userId, guildId: dto.guildId, moderatorId: dto.moderatorId, reason: dto.reason, guild: dto.guild });
-      return { banned: true };
+      return { banned: true, count: newCount };
     }
 
     await this.applyWarningRoles(dto.guild, dto.userId, newCount, setting.noticeRoleId, setting.warningRoleId);
@@ -68,7 +68,7 @@ export class ModerationService {
       await dto.guild.timeoutMember(dto.userId, dto.timeoutMs, dto.reason);
     }
 
-    return { banned: false };
+    return { banned: false, count: newCount };
   }
 
   async removeWarning(dto: RemoveWarningDto): Promise<void> {
