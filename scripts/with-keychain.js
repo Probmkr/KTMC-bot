@@ -19,6 +19,6 @@ const KEYS = ['BOT_TOKEN', 'APP_ID', 'DATABASE_URL', 'GUILD_ID'];
   }
 
   const [cmd, ...args] = process.argv.slice(2);
-  const child = spawn(cmd, args, { env, stdio: 'inherit', shell: true });
+  const child = spawn(cmd, args, { env, stdio: 'inherit' });
   child.on('exit', code => process.exit(code ?? 0));
 })();
