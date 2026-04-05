@@ -22,30 +22,23 @@ prefix の一覧は [README.md — コミットメッセージ > prefix 一覧](
 
 ## プルリクエストの流れ
 
-### 1. Draft PR を作成する
+### 1. 計画ファイルを作成して Draft PR を作る
 
-ブランチを切ったらすぐに Draft PR を作成し、description に実装計画を書く。
-
-```bash
-gh pr create --draft --title "feat/ping-command" --body "## 計画
-- /ping コマンドを追加する
-- Service 不要（ロジックなし）
-"
-```
-
-計画は作業中に随時 `gh pr edit` で更新してよい。Draft PR 中はマージされない。
-
-### 2. Ready for Review に変更する
-
-実装が完了したら Ready for Review に変更する。
+ブランチを切り、`plan/<branch-name>.md` に実装計画を書いてコミットし、Draft PR を作成する。
 
 ```bash
-gh pr ready
+git checkout -b feat/ping-command
+# plan/feat-ping-command.md を作成・コミット
+gh pr create --draft --title "feat: /ping コマンドを追加"
 ```
+
+### 2. 実装する
+
+計画に沿ってコードを書く。
 
 ### 3. レビュー
 
-行番号を指定したコメントで PR にレビューを残す。
+`gh pr diff` で差分を読み、行番号を指定したインラインコメントで PR にレビューを残す。
 
 ```bash
 gh api repos/{owner}/{repo}/pulls/{number}/reviews \
@@ -57,3 +50,14 @@ gh api repos/{owner}/{repo}/pulls/{number}/reviews \
 ```
 
 `{owner}` `{repo}` `{number}` は実際の値に置き換えること。
+
+### 4. マージ
+
+LGTM が出たら計画ファイルを削除してコミットし、Ready for Review に変更してマージする。
+
+```bash
+rm plan/feat-ping-command.md
+git add -A && git commit -m "chore: 計画ファイルを削除"
+gh pr ready
+gh pr merge --squash --delete-branch
+```
