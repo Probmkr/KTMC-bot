@@ -1,9 +1,14 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { Command } from '../../types';
 import { DiscordGuildAdapter } from '../../infrastructure/discord/guild.adapter';
 import { moderationService } from '../../services';
+import { DomainError } from '../../errors';
 
 async function handleSetup(interaction: ChatInputCommandInteraction): Promise<void> {
+  if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
+    throw new DomainError('この操作にはサーバー管理権限が必要です');
+  }
+
   const noticeRole  = interaction.options.getRole('notice-role', true);
   const warningRole = interaction.options.getRole('warning-role', true);
 
@@ -72,6 +77,7 @@ const command: Command = {
   data: new SlashCommandBuilder()
     .setName('warn')
     .setDescription('警告管理')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     .addSubcommand(sub =>
       sub.setName('setup')
         .setDescription('モデレーション用ロールを設定します（管理者のみ）')
