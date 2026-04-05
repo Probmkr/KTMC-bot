@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { Command } from '../../types';
 import { DiscordGuildAdapter } from '../../infrastructure/discord/guild.adapter';
 import { moderationService } from '../../services';
@@ -7,6 +7,7 @@ const command: Command = {
   data: new SlashCommandBuilder()
     .setName('ban')
     .setDescription('ユーザーを BAN します')
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
     .addUserOption(opt => opt.setName('user').setDescription('対象ユーザー').setRequired(true))
     .addStringOption(opt => opt.setName('reason').setDescription('理由')),
 
