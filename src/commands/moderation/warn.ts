@@ -18,7 +18,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction): Promise<vo
     warningRoleId: warningRole.id,
   });
 
-  await interaction.reply({ content: `設定を保存しました。\n注意ロール: <@&${noticeRole.id}>\n警告ロール: <@&${warningRole.id}>`, ephemeral: true });
+  await interaction.reply({ content: `設定を保存しました。\n注意ロール: <@&${noticeRole.id}>\n警告ロール: <@&${warningRole.id}>`, flags: 'Ephemeral' as const });
 }
 
 async function handleAdd(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -36,10 +36,10 @@ async function handleAdd(interaction: ChatInputCommandInteraction): Promise<void
   });
 
   if (result.banned) {
-    await interaction.reply({ content: `${user} を BAN しました（警告3回）\n理由: ${reason}`, ephemeral: true });
+    await interaction.reply({ content: `${user} を BAN しました（警告3回）\n理由: ${reason}`, flags: 'Ephemeral' as const });
   } else {
     const timeoutText = timeout ? `\nタイムアウト: ${timeout}分` : '';
-    await interaction.reply({ content: `${user} に警告を追加しました\n理由: ${reason}${timeoutText}`, ephemeral: true });
+    await interaction.reply({ content: `${user} に警告を追加しました\n理由: ${reason}${timeoutText}`, flags: 'Ephemeral' as const });
   }
 }
 
@@ -53,7 +53,7 @@ async function handleRemove(interaction: ChatInputCommandInteraction): Promise<v
     guild:       new DiscordGuildAdapter(interaction.guild!),
   });
 
-  await interaction.reply({ content: `${user} の警告を1回取り消しました`, ephemeral: true });
+  await interaction.reply({ content: `${user} の警告を1回取り消しました`, flags: 'Ephemeral' as const });
 }
 
 async function handleList(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -69,7 +69,7 @@ async function handleList(interaction: ChatInputCommandInteraction): Promise<voi
   const logsText = logLines.length > 0 ? logLines.join('\n') : 'なし';
   await interaction.reply({
     content: `**${user.tag} の警告状況**\n現在の警告回数: ${status.count} (${levelText})\n\n**直近の履歴（最大5件）**\n${logsText}`,
-    ephemeral: true,
+    flags: 'Ephemeral' as const,
   });
 }
 

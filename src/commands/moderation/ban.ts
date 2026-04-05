@@ -23,7 +23,7 @@ const command: Command = {
       guild:       new DiscordGuildAdapter(interaction.guild!),
     });
 
-    await interaction.reply({ content: `${user} を BAN しました\n理由: ${reason}`, ephemeral: true });
+    await interaction.reply({ content: `${user} を BAN しました\n理由: ${reason}`, flags: 'Ephemeral' as const });
   },
 };
 

@@ -8,7 +8,7 @@ const command: Command = {
 
   async execute(interaction) {
     const latency = Date.now() - interaction.createdTimestamp;
-    await interaction.reply({ content: `Pong! \`${latency}ms\``, ephemeral: true });
+    await interaction.reply({ content: `Pong! \`${latency}ms\``, flags: 'Ephemeral' as const });
   },
 };
 
